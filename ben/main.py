@@ -35,7 +35,7 @@ def print_decompressed(d):
     print({zlib.decompress(key).decode("utf-8"): [zlib.decompress(x).decode("utf-8") for x in d[key]] for key in d})
 
 
-def update_4j():
+def update_4j(d):
     user = "neo4j"
     password = "1234"
 
@@ -54,6 +54,7 @@ def worker():
             link_, depth_ = q.get(block=True, timeout=5)
             process_wiki(link_, depth_)
     except queue.Empty:
+        print(links)
         return
 
 
@@ -61,17 +62,17 @@ def process_wiki(site, depth):
     global q, table
     if depth < 1:
         return
-    
+
     # check if site is in compressed form or not
     if type(site) != str:
         site = zlib.decompress(site).decode("utf-8")
-    
+
     # request information
     page = requests.get(base + site)
     tree = html.fromstring(page.content)
 
     store = []
-    
+
     # iterate through all matched elements
     for el in tree.xpath(xpath):
         try:
@@ -84,27 +85,27 @@ def process_wiki(site, depth):
         if bin_search(links, site) != -1:
             if "/wiki/" == el.attrib['href'][:6] and ("BookSources" and "citation_needed" and "Citation_needed" and ":") \
                     not in el.attrib['href'] and el.text_content():
-                               
+
                 # compresses data to be decompressed and read later
                 bytes_href = bytes(el.attrib['href'], "utf-8")
                 compressed = zlib.compress(bytes_href)
-                
+
                 # add to temp array the links being processed
                 store.append(compressed)
                 # add to queue the next link to be processed
                 q.put((el.attrib['href'], depth - 1))
-    
+
     # write to table with the compressed key and compressed text within array
     table[zlib.compress(bytes(site, "utf-8"))] = store
-    
+
     # insert sorted into links for easier and more efficient searching down the line
-    bisect.insort(site)
+    bisect.insort(links, site)
 
 
 if __name__ == '__main__':
     base = "https://en.wikipedia.org"
     link = "/wiki/Jarvis_Island/People"
-    
+
     # global queue
     q = queue.Queue()
 
@@ -114,14 +115,18 @@ if __name__ == '__main__':
     links = []
     index = 0
 
-    storage_file = "new_store.pick"
-    
+    storage_file = "new_store"
+
     # checks for storage file and loads storage file
-    if os.path.exists(storage_file) and os.path.getsize(storage_file) > 0:
+    try:
         with shelve.open(storage_file) as file:
             links = file['processed']
             index = file['index']
             file.close()
+    except KeyError:
+        print("New file created")
+
+    print(links)
 
     # includes "see also" part
     xpath = '//div[@id="mw-content-text"]//p//a'
