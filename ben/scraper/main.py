@@ -82,7 +82,7 @@ def process_wiki(site, depth):
         # cleans up link
         if el.attrib['href'].count("/") > 2:
             el.attrib['href'] = "/".join(link.split("/")[:3])
-        if bin_search(links, site) != -1:
+        if bin_search(links, site) == -1:
             if "/wiki/" == el.attrib['href'][:6] and ("BookSources" and "citation_needed" and "Citation_needed" and ":") \
                     not in el.attrib['href'] and el.text_content():
 
