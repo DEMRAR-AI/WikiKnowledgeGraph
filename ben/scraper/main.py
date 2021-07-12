@@ -92,7 +92,8 @@ if __name__ == '__main__':
     q = queue.Queue()
 
     rab = Rabbit()
-
+    rab.connect()
+    
     table = {}
 
     # seen links overall since emptying the dict to save memory
