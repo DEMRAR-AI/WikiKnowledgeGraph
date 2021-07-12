@@ -8,8 +8,8 @@ class ConError(Exception):
 
 
 class Rabbit(object):
-    def __init__(self, host=''):
-        self.host = host
+    def __init__(self):
+        self.host = None
         self.con = None
         self.channel = None
 
