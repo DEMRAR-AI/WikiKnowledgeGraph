@@ -1,12 +1,15 @@
-import pika
+import ctypes
+import datetime
+import http.server as http
 import json
 import socketserver
 import threading
-import ctypes
-from neomodel import StructuredNode, StringProperty, Relationship, config
-from urllib.parse import urlparse
+import time
 from urllib.parse import parse_qs
-import http.server as http
+from urllib.parse import urlparse
+
+import pika
+from neomodel import StructuredNode, StringProperty, Relationship, config
 
 
 class Basic(StructuredNode):
@@ -16,19 +19,15 @@ class Basic(StructuredNode):
 
 
 class DiagnosticThread(threading.Thread):
-    def __init__(self, name):
+    def __init__(self, name, targ):
         threading.Thread.__init__(self)
+        self.targ = targ
         self.name = name
 
     def run(self):
         # target function of the thread class
         try:
-            handler_obj = DiagnosticRequestHandler
-
-            port = 8000
-            dg_server = socketserver.TCPServer(("", port), handler_obj)
-
-            dg_server.serve_forever()
+            self.targ
         finally:
             pass
 
@@ -50,6 +49,8 @@ class DiagnosticThread(threading.Thread):
 
 class DiagnosticRequestHandler(http.SimpleHTTPRequestHandler):
     def do_GET(self):
+        global killed
+
         self.send_response(200)
 
         self.send_header("Content-type", "text/html")
@@ -57,13 +58,31 @@ class DiagnosticRequestHandler(http.SimpleHTTPRequestHandler):
 
         # get query components, if none then just get all info
         q_comps = parse_qs(urlparse(self.path).query)
-        # if 'part of diag' in q_comps:
-
+        if 'cmd' in q_comps:
+            cmd = q_comps['cmd'][0]
+            if 'kill' in cmd:
+                log("Stopped consumer")
+                killed = True
         html = "Info:"
 
         self.wfile.write(bytes(html, 'utf8'))
 
         return
+
+
+def log(msg):
+    with open("log.txt", "a+") as file:
+        file.write("[" + str(datetime.datetime.now().split(".")[0]) + "]: " + msg)
+        file.close()
+
+
+def diagnostic():
+    handler_obj = DiagnosticRequestHandler
+
+    port = 8000
+    dg_server = socketserver.TCPServer(("", port), handler_obj)
+
+    dg_server.serve_forever()
 
 
 def MQ():
@@ -74,6 +93,9 @@ def MQ():
     channel.queue_declare(queue='main_q', passive=True)
 
     channel.basic_consume(queue='main_q', auto_ack=True, on_message_callback=callback)
+
+    log("Started consumer")
+
     channel.start_consuming()
 
 
@@ -98,6 +120,7 @@ def callback(ch, method, properties, body):
 
 
 if __name__ == '__main__':
+    killed = False
     try:
         user = "neo4j"
         password = "neo123"
@@ -105,11 +128,17 @@ if __name__ == '__main__':
         server = "bolt://{}:{}@localhost:7474".format(user, password)
         config.DATABASE_URL = server
 
-        t1 = DiagnosticThread('t1')
+        t1 = DiagnosticThread('t1', diagnostic)
         t1.start()
 
-        MQ()
+        t2 = DiagnosticThread('t1', MQ)
+        t2.start()
+
+        while not killed:
+            time.sleep(.6)
 
     finally:
         t1.raise_exception()
         t1.join()
+        t2.raise_exception()
+        t2.join()
