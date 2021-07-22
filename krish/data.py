@@ -1,3 +1,0 @@
-TRAIN_DATA = [
-
-]
