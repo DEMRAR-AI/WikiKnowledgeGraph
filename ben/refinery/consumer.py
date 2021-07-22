@@ -1,9 +1,10 @@
-import ctypes
 import datetime
 import http.server as http
 import json
 import socketserver
 import threading
+import os
+import psutil
 import time
 from urllib.parse import parse_qs
 from urllib.parse import urlparse
@@ -16,35 +17,6 @@ class Basic(StructuredNode):
     name = StringProperty(unique_index=True, required=True)
     to = Relationship("Basic", "related_to")
     link = StringProperty(required=False)
-
-
-class DiagnosticThread(threading.Thread):
-    def __init__(self, name, targ):
-        threading.Thread.__init__(self)
-        self.targ = targ
-        self.name = name
-
-    def run(self):
-        # target function of the thread class
-        try:
-            self.targ
-        finally:
-            pass
-
-    def get_id(self):
-        # returns id of the respective thread
-        if hasattr(self, '_thread_id'):
-            return self._thread_id
-        for id, thread in threading._active.items():
-            if thread is self:
-                return id
-
-    def raise_exception(self):
-        thread_id = self.get_id()
-        res = ctypes.pythonapi.PyThreadState_SetAsyncExc(thread_id,
-                                                         ctypes.py_object(SystemExit))
-        if res > 1:
-            ctypes.pythonapi.PyThreadState_SetAsyncExc(thread_id, 0)
 
 
 class DiagnosticRequestHandler(http.SimpleHTTPRequestHandler):
@@ -72,7 +44,7 @@ class DiagnosticRequestHandler(http.SimpleHTTPRequestHandler):
 
 def log(msg):
     with open("log.txt", "a+") as file:
-        file.write("[" + str(datetime.datetime.now().split(".")[0]) + "]: " + msg)
+        file.write("\n[" + str(datetime.datetime.now()).split(".")[0] + "]: " + msg)
         file.close()
 
 
@@ -90,6 +62,7 @@ def MQ():
     creds = pika.PlainCredentials('main', 'main13')
     con = pika.BlockingConnection(pika.ConnectionParameters(host=host, credentials=creds))
     channel = con.channel()
+
     channel.queue_declare(queue='main_q', passive=True)
 
     channel.basic_consume(queue='main_q', auto_ack=True, on_message_callback=callback)
@@ -128,17 +101,17 @@ if __name__ == '__main__':
         server = "bolt://{}:{}@localhost:7474".format(user, password)
         config.DATABASE_URL = server
 
-        t1 = DiagnosticThread('t1', diagnostic)
+        t1 = threading.Thread(target=diagnostic)
         t1.start()
 
-        t2 = DiagnosticThread('t1', MQ)
+        t2 = threading.Thread(target=MQ)
         t2.start()
 
         while not killed:
             time.sleep(.6)
 
     finally:
-        t1.raise_exception()
-        t1.join()
-        t2.raise_exception()
-        t2.join()
+        pid = os.getpid()
+
+        ts = psutil.Process(pid)
+        ts.terminate()
