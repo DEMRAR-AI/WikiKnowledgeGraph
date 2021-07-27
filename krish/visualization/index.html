@@ -77,9 +77,19 @@
                 if (error) throw error
                 graph = data
                 console.log(graph)
-                console.log(graph[0].p)
+                console.log(graph[0].n)
                 for (let item of graph) {
-                    for (let segment of item.p.segments) {
+
+			nodes.push({
+                                id: item.n.identity,
+                                label: item.n.labels[0],
+                                properties: item.n.properties
+                            })
+
+		if(item.n.segments){
+
+
+                    for (let segment of item.n.segments) {
                         // Change the data format again
                         if (nodeSet.indexOf(segment.start.identity) == -1) {
                             nodeSet.push(segment.start.identity)
@@ -104,6 +114,9 @@
                             properties: segment.relationship.properties
                         })
                     }
+
+}
+
                 }
                 console.log(nodes)
                 console.log(links)
