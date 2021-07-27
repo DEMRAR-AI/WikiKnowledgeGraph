@@ -1,0 +1,277 @@
+﻿[
+  {
+    "n": {
+"identity": 517,
+"labels": [
+        "PERSON"
+      ],
+"properties": {
+"name": "/wiki/Walt_Disney"
+      }
+    }
+  },
+  {
+    "n": {
+"identity": 518,
+"labels": [
+        "GPE"
+      ],
+"properties": {
+"name": "/wiki/Modern_animation_in_the_United_States"
+      }
+    }
+  },
+  {
+    "n": {
+"identity": 519,
+"labels": [
+        "PAGE"
+      ],
+"properties": {
+"name": "/wiki/Cartoon"
+      }
+    }
+  },
+  {
+    "n": {
+"identity": 520,
+"labels": [
+        "PAGE"
+      ],
+"properties": {
+"name": "/wiki/Academy_Awards"
+      }
+    }
+  },
+  {
+    "n": {
+"identity": 521,
+"labels": [
+        "PAGE"
+      ],
+"properties": {
+"name": "/wiki/Golden_Globe_Awards"
+      }
+    }
+  },
+  {
+    "n": {
+"identity": 522,
+"labels": [
+        "PERSON"
+      ],
+"properties": {
+"name": "/wiki/Emmy_Award"
+      }
+    }
+  },
+  {
+    "n": {
+"identity": 523,
+"labels": [
+        "PERSON"
+      ],
+"properties": {
+"name": "/wiki/Walt_Disney#Honors"
+      }
+    }
+  },
+  {
+    "n": {
+"identity": 524,
+"labels": [
+        "ORG"
+      ],
+"properties": {
+"name": "/wiki/National_Film_Registry"
+      }
+    }
+  },
+  {
+    "n": {
+"identity": 525,
+"labels": [
+        "ORG"
+      ],
+"properties": {
+"name": "/wiki/Library_of_Congress"
+      }
+    }
+  },
+  {
+    "n": {
+"identity": 526,
+"labels": [
+        "PAGE"
+      ],
+"properties": {
+"name": "/wiki/Animation"
+      }
+    }
+  },
+  {
+    "n": {
+"identity": 527,
+"labels": [
+        "PAGE"
+      ],
+"properties": {
+"name": "/wiki/Illustration"
+      }
+    }
+  },
+  {
+    "n": {
+"identity": 528,
+"labels": [
+        "PAGE"
+      ],
+"properties": {
+"name": "/wiki/Realism_(arts)"
+      }
+    }
+  },
+  {
+    "n": {
+"identity": 529,
+"labels": [
+        "PAGE"
+      ],
+"properties": {
+"name": "/wiki/Satire"
+      }
+    }
+  },
+  {
+    "n": {
+"identity": 530,
+"labels": [
+        "PAGE"
+      ],
+"properties": {
+"name": "/wiki/Caricature"
+      }
+    }
+  },
+  {
+    "n": {
+"identity": 531,
+"labels": [
+        "PAGE"
+      ],
+"properties": {
+"name": "/wiki/Humor"
+      }
+    }
+  },
+  {
+    "n": {
+"identity": 532,
+"labels": [
+        "PAGE"
+      ],
+"properties": {
+"name": "/wiki/Cartoonist"
+      }
+    }
+  },
+  {
+    "n": {
+"identity": 533,
+"labels": [
+        "PAGE"
+      ],
+"properties": {
+"name": "/wiki/Animator"
+      }
+    }
+  },
+  {
+    "n": {
+"identity": 534,
+"labels": [
+        "PAGE"
+      ],
+"properties": {
+"name": "/wiki/Film_industry"
+      }
+    }
+  },
+  {
+    "n": {
+"identity": 535,
+"labels": [
+        "ORG"
+      ],
+"properties": {
+"name": "/wiki/Academy_of_Motion_Picture_Arts_and_Sciences"
+      }
+    }
+  },
+  {
+    "n": {
+"identity": 536,
+"labels": [
+        "PAGE"
+      ],
+"properties": {
+"name": "/wiki/Art_Deco"
+      }
+    }
+  },
+  {
+    "n": {
+"identity": 537,
+"labels": [
+        "ORG"
+      ],
+"properties": {
+"name": "/wiki/Hollywood_Foreign_Press_Association"
+      }
+    }
+  },
+  {
+    "n": {
+"identity": 538,
+"labels": [
+        "WORK_OF_ART"
+      ],
+"properties": {
+"name": "/wiki/EGOT"
+      }
+    }
+  },
+  {
+    "n": {
+"identity": 539,
+"labels": [
+        "WORK_OF_ART"
+      ],
+"properties": {
+"name": "/wiki/Grammy_Awards"
+      }
+    }
+  },
+  {
+    "n": {
+"identity": 540,
+"labels": [
+        "PAGE"
+      ],
+"properties": {
+"name": "/wiki/Music"
+      }
+    }
+  },
+  {
+    "n": {
+"identity": 541,
+"labels": [
+        "PAGE"
+      ],
+"properties": {
+"name": "/wiki/Film"
+      }
+    }
+  }
+]
