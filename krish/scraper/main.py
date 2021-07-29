@@ -3,6 +3,7 @@ from Refinery import Refinery
 from threading import Thread
 import concurrent.futures
 
+
 if __name__ == '__main__':
     scraper = Scraper()
     refinery = Refinery(uri='bolt://localhost:7687', user='neo4j', password='abc123')
