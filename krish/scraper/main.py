@@ -2,7 +2,7 @@ from Scraper import Scraper
 from Refinery import Refinery
 from threading import Thread
 import concurrent.futures
-
+from WikiKnowledgeGraph.ben.scraper.ezsender.main import Rabbit
 
 if __name__ == '__main__':
     scraper = Scraper()
@@ -11,7 +11,12 @@ if __name__ == '__main__':
     nodes = scraper.get_nodes()
     scraper.display_stats()
     scraper.close()
+    """
     refinery.push_to_cache('cache', nodes)
     refinery.push_to_db(nodes, clear=True)
+    """
     print(nodes)
+    rabbit = Rabbit()
+    rabbit.connect()
+    rabbit.send_dict(nodes)
 
