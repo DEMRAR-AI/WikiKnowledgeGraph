@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Knowledge Graph</title>
+    <meta name="description" content="" />
+    <meta name="keywords" content="" />
+    <meta name="author" content="" />
+    <link rel="shortcut icon" href="">
+    <script src="https://cdn.bootcss.com/jquery/2.1.4/jquery.min.js"></script>
+    <link href="https://cdn.bootcss.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.bootcss.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="graph.css" />
+</head>
+
+<body>
+    <!-- Draw title style-->
+    <h1 style=" color:#fff;font-size:32px;margin-bottom:0px;text-align:center;margin-left:40px; ">
+        Corporate Relationship Diagram </h1>
+    <!-- The first layout to draw the main map of the knowledge map -->
+    <div style="text-align: center; position:relative;">
+        <svg width="800" height="600" style="margin-right:80px;margin-bottom:-40px;" id="svg1">
+			</svg>
+        <!-- Draw a legend-->
+        <div id="indicator">
+        </div>
+        <!-- Draw the right to display the result-->
+        <div id="info">
+            <h4></h4>
+        </div>
+    </div>
+    <!-- Add D3 element library -->
+    <script src="d3.v4.min.js"></script>
+    <!-- Draw a legend-->
+    <script type="text/javascript">
+        $(document).ready(function() {
+            // Define the svg variable to select the layout svg1
+            var svg = d3.select("#svg1"),
+                width = svg.attr("width"),
+                height = svg.attr("height");
+            // Customize icons and colors (the array guarantees one-to-one correspondence)
+            //names legend name variable making icon
+            // The label name of the labels node (same as guaranteed in records.json)
+            // colors legend color
+            // path of url json file
+            var names = ['Enterprise', 'Type', 'Region', 'Country']
+            var labels = ['Enterprise', 'Type', 'Region', 'Country']
+            var colors = ['#55ffff', '#aaaaff', '#4e88af', '#ca635f']
+            var url = 'testaltered.json'
+
+            // load indicator CSS
+            for (var i = 0; i < names.length; i++) {
+                $('#indicator').append("<div><span style='background-color:" + colors[i] + "'></span>" + names[i] +
+                    "</div>")
+            }
+
+            // The background color is set to supplement the CSS style to set the font layout
+            var simulation = d3.forceSimulation()
+                .force("link", d3.forceLink().id(d => {
+                    // console.log(d)
+                    return d.id
+                }))
+                .force("charge", d3.forceManyBody())
+                .force("center", d3.forceCenter(width / 2, height / 2))
+                .force("collision", d3.forceCollide(18)) // collision detection
+                // Graph data
+            var graph
+            let nodes = []
+            let links = [] // Store nodes and relationships
+            let nodeSet = [] //Store the id of nodes after deduplication
+            console.log("working")
+            //d3.json get data
+            d3.json(url, function(error, data) {
+                if (error) throw error
+                console.log("working2")
+                graph = data
+                console.log(graph)
+                console.log(graph[0].n)
+                for (let item of graph) {
+
+                    //if the item is a node
+                    if (item.type == "node"){
+                        console.log(item.id)
+                        nodes.push({
+                                id: item.identity,
+                                label: item.labels[0],
+                                properties: item.properties
+                            })
+                    }
+
+                    //if the item is a relationship
+                    if (item.type == "relationship"){
+
+
+                        
+                        // Change the data format again
+                        /*
+                        if (nodeSet.indexOf(start.id) == -1) {
+                            nodeSet.push(start.id)
+                            nodes.push({
+                                id: segment.start.identity,
+                                label: segment.start.labels[0],
+                                properties: segment.start.properties
+                            })
+                        }
+                        if (nodeSet.indexOf(segment.end.identity) == -1) {
+                            nodeSet.push(segment.end.identity)
+                            nodes.push({
+                                id: segment.end.identity,
+                                label: segment.end.labels[0],
+                                properties: segment.end.properties
+                            })
+                        } 
+                        */
+                        links.push({
+                            source: item.start,
+                            target: item.end,
+                            type: item.label,
+                            properties: item.properties //NEED TO ACTUALLY LOCATE PROPERTIES THROUGH SEARCHING BACK IN DICTIONARY
+                            })
+                        
+
+                        
+
+                    }
+
+                    
+
+                }
+                console.log(nodes)
+                console.log(links)
+                    // D3 maps data to HTML
+                    // g is used to draw all edges, selectALL selects all lines, and binds data data(graph.links), enter().append("line") adds elements
+                    // Data-driven document, set the thickness of the side
+
+                var link = svg.append("g").attr("class", "links").selectAll("line").data(links).enter()
+                    .append("line").attr("stroke-width", function(d) {
+                        // One item of data in links is accessed each time
+                        return 1.5
+                            //All line widths are 2
+                    });
+
+                // add all points
+                // selectAll("circle") select all circles and bind data, the diameter of the circle is d.size
+                // Define the fill color of the circle again, the same data-driven style, the circle  has no stroke, and the name of the circle is d.id
+                // call() function: drag function, when dragging begins to bind dragstarted function, dragging progress and drag end also bind the function
+                var node = svg.append("g").attr("class", "nodes").selectAll("circle").data(nodes).enter()
+                    .append("circle").attr("r", function(d) {
+                        // One item of data of nodes is accessed each time
+                        // console.log(d)
+                        let size = 15
+                        switch (d.label) {
+                            case labels[0]:
+                                break;
+                            case labels[1]:
+                                size = 14;
+                                break;
+                            case labels[2]:
+                                size = 13;
+                                break;
+                            default:
+                                size = 12;
+                                break;
+                        }
+                        return size
+                    }).attr("fill", function(d) {
+                        for (let i = 0; i < labels.length; i++) {
+                            if (d.label === labels[i]) return colors[i]
+                        }
+                    }).attr("stroke", "none").attr("name", function(d) {
+                        return d.properties.name;
+                    }).attr("id", d => d.id)
+                    .call(d3.drag()
+                        .on("start", dragstarted)
+                        .on("drag", dragged)
+                        .on("end", dragended)
+                    );
+
+                //Display all text
+                //Set size, fill color, name, text() set text
+                //attr("text-anchor", "middle") set the text to be centered
+                var text = svg.append("g").attr("class", "texts").selectAll("text").data(nodes).enter()
+                    .append("text").attr("font-size", function(d) {
+                        return 13;
+                    }).attr("fill", function(d) {
+                        for (let i = 0; i < labels.length; i++) {
+                            if (d.label === labels[i]) return colors[i]
+                        }
+                    }).attr('name', function(d) {
+                        return d.properties.name;
+                    }).text(function(d) {
+                        return d.properties.name;
+                    })
+
+                // Circle increase title
+                node.append("title").text(d => d.properties.name)
+
+                // Initialize ticked data in simulation and generate graphics
+
+                simulation.nodes(nodes).on("tick", ticked);
+
+                simulation.force("link")
+                    .links(links)
+                    .distance(d => { //The length of each side
+                        let distance = 10
+                        switch (d.source.label) {
+                            case labels[0]:
+                                distance += 30;
+                                break;
+                            case labels[1]:
+                                distance += 25;
+                                break;
+                            case labels[2]:
+                                distance += 20;
+                                break;
+                            default:
+                                distance += 15;
+                                break;
+                        }
+                        switch (d.target.label) {
+                            case labels[0]:
+                                distance += 30;
+                                break;
+                            case labels[1]:
+                                distance += 25;
+                                break;
+                            case labels[2]:
+                                distance += 20;
+                                break;
+                            default:
+                                distance += 15;
+                                break;
+                        }
+                        return distance
+                    });
+
+                // The ticked() function determines the x and y coordinates of the starting point of the link line.The node determines the center point.The text istranslated by translate
+                function ticked() {
+                    link
+                        .attr("x1", function(d) {
+                            return d.source.x;
+                        })
+                        .attr("y1", function(d) {
+                            return d.source.y;
+                        })
+                        .attr("x2", function(d) {
+                            return d.target.x;
+                        })
+                        .attr("y2", function(d) {
+                            return d.target.y;
+                        });
+
+                    node
+                        .attr("cx", function(d) {
+                            return d.x;
+                        })
+                        .attr("cy", function(d) {
+                            return d.y;
+                        });
+
+                    text.attr('transform', function(d) {
+                        let size = 15
+                        switch (d.label) {
+                            case labels[0]:
+                                break;
+                            case labels[1]:
+                                size = 14;
+                                break;
+                            case labels[2]:
+                                size = 13;
+                                break;
+                            default:
+                                size = 12;
+                                break;
+                        }
+                        return 'translate(' + (d.x - size / 2) + ',' + (d.y + size / 2) + ')';
+                    });
+                }
+            });
+            // Drag function code
+            var dragging = false;
+            // Start dragging and update the corresponding point
+            function dragstarted(d) {
+                if (!d3.event.active) simulation.alphaTarget(0.3).restart();
+                d.fx = d.x;
+                d.fy = d.y;
+                dragging = true;
+            }
+            // Drag in progress
+            function dragged(d) {
+                d.fx = d3.event.x;
+                d.fy = d3.event.y;
+            }
+            // end of drag
+            function dragended(d) {
+                if (!d3.event.active) simulation.alphaTarget(0);
+                d.fx = null;
+                d.fy = null;
+                dragging = false;
+            }
+
+            // Set the mouse to select the node to display, and cycle to set the node display associated with the selected node
+            // Bind the mouse entry event to the .nodes circle element under the parent element of svg1
+
+            $('#svg1').on('mouseenter', '.nodes circle', function(event) {
+                // console.log(event)
+                // Through the variable dragging to ensure that when the mouse is dragged, its state is not affected, thereby changing the graph
+                // The mouse is not dragged to handle the event
+                if (!dragging) {
+                    // Get the name of the selected element
+                    var name = $(this).attr("name");
+                    var id = $(this).attr("id");
+                    // Set the color of #info h4 style to the color of the node, and the text is the node name
+                    // $(this).attr('fill') represents the fill color of the current floating circle
+
+                    $('#info h4').css('color', $(this).attr('fill')).text(name);
+                    // Remove the last displayed information before each click to add attributes, otherwise it will continue to overlap
+
+                    $('#info p').remove();
+                    // Traverse to find the attribute corresponding to id
+                    for (let item of nodes) {
+                        if (item.id == id) {
+                            for (var key in item.properties)
+                            //Display value and its field name
+                                $('#info').append('<p><span>' + key + '</span>' + item.properties[key] +
+                                '</p>');
+                        }
+                    }
+                    // Select all circles in #svg1.nodes, and add another class
+
+                    d3.select('#svg1 .nodes').selectAll('circle').attr('class', function(d) {
+                        // Whether the id of the data is equal to the name, return empty
+                        if (d.properties.name == name) {
+                            return '';
+                        } else {
+                            // The current node returns empty, otherwise other nodes loop to determine whether they are hidden(CSS setting hidden)
+                            // The starting node of the links link is judged, and if its id is equal to name, this kind of node is displayed
+                            // Note: graph=data
+                            for (var i = 0; i < links.length; i++) {
+                                // If the starting point of links is equal to name, and the ending point is equal to the one being processed, it will be displayed
+                                if (links[i]['source'].properties.name == name && links[i]['target']
+                                    .id == d.id) {
+                                    return '';
+                                }
+                                if (links[i]['target'].properties.name == name && links[i]['source']
+                                    .id == d.id) {
+                                    return '';
+                                }
+                            }
+                            return "inactive";
+                            //The previous CSS definition.nodes circle.inactive } });
+
+                        }
+                    });
+                    // Deal with whether the adjacent edge line hides attention ||
+                    d3.select("#svg1 .links").selectAll('line').attr('class', function(d) {
+                        if (d.source.properties.name == name || d.target.properties.name == name) {
+                            return '';
+                        } else {
+                            return 'inactive';
+                        }
+                    });
+                }
+            });
+            // Move the mouse away to restore the original image, showing all hidden points and edges
+
+            $('#svg1').on('mouseleave', '.nodes circle', function(event) {
+                d3.select('#svg1 .nodes').selectAll('circle').attr('class', '');
+                d3.select('#svg1 .links').selectAll('line').attr('class', '');
+            });
+            // The mouse enters the text to display adjacent nodes and edges
+            $('#svg1').on('mouseenter', '.texts text', function(event) {
+                if (!dragging) {
+                    var name = $(this).attr('name');
+
+                    $('#info h4').css('color', $(this).attr('fill')).text(name);
+                    $('#info p').remove();
+                    // Traverse to find the attribute corresponding to id
+                    for (let item of nodes) {
+                        if (item.properties.name == name) {
+                            for (var key in item.properties)
+                            // display value and its field name
+                                $('#info').append('<p><span>' + key + '</span>' + item.properties[key] +
+                                '</p>');
+                        }
+                    }
+
+                    d3.select('#svg1 .texts').selectAll('text').attr('class', function(d) {
+                        if (d.properties.name == name) {
+                            return '';
+                        }
+
+                        for (var i = 0; i < links.length; i++) {
+                            if (links[i]['source'].properties.name == name && links[i]['target']
+                                .id == d.id) {
+                                return '';
+                            }
+                            if (links[i]['target'].properties.name == name && links[i]['source']
+                                .id == d.id) {
+                                return '';
+                            }
+                        }
+                        return 'inactive';
+                    });
+                    d3.select("#svg1 .links").selectAll('line').attr('class', function(d) {
+                        if (d.source.properties.name == name || d.target.properties.name == name) {
+                            return '';
+                        } else {
+                            return 'inactive';
+                        }
+                    });
+                }
+            });
+            // Remove the text with the mouse to restore the corresponding nodes and edges
+
+            $('#svg1').on('mouseleave', '.texts text', function(event) {
+                if (!dragging) {
+                    d3.select('#svg1 .texts').selectAll('text').attr('class', '');
+                    d3.select('#svg1 .links').selectAll('line').attr('class', '');
+                }
+            });
+
+        });
+    </script>
+</body>
+
+</html>
