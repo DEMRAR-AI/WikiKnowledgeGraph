@@ -10,7 +10,10 @@
     <meta name="keywords" content="" />
     <meta name="author" content="" />
     <link rel="shortcut icon" href="">
-    <script src="https://cdn.bootcss.com/jquery/2.1.4/jquery.min.js"></script>
+    <script
+			  src="https://code.jquery.com/jquery-2.1.4.min.js"
+			  integrity="sha256-8WqyJLuWKRBVhxXIL1jBDD7SDxU936oZkCnxQbWwJVw="
+			  crossorigin="anonymous"></script>
     <link href="https://cdn.bootcss.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.bootcss.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
     <link rel="stylesheet" type="text/css" href="graph.css" />
@@ -80,42 +83,28 @@
                 console.log(graph[0].n)
                 for (let item of graph) {
 
-			nodes.push({
-                                id: item.n.identity,
-                                label: item.n.labels[0],
-                                properties: item.n.properties
-                            })
+			if(item.type == "node"){
 
-		if(item.n.segments){
+				if (nodeSet.indexOf(item.id) == -1) {
+		                    nodeSet.push(item.id)
+		                }
 
+				nodes.push({
+		                        id: item.id,
+		                        label: item.labels[0],
+		                        properties: item.properties
+		                    })
 
-                    for (let segment of item.n.segments) {
-                        // Change the data format again
-                        if (nodeSet.indexOf(segment.start.identity) == -1) {
-                            nodeSet.push(segment.start.identity)
-                            nodes.push({
-                                id: segment.start.identity,
-                                label: segment.start.labels[0],
-                                properties: segment.start.properties
-                            })
-                        }
-                        if (nodeSet.indexOf(segment.end.identity) == -1) {
-                            nodeSet.push(segment.end.identity)
-                            nodes.push({
-                                id: segment.end.identity,
-                                label: segment.end.labels[0],
-                                properties: segment.end.properties
-                            })
-                        }
-                        links.push({
-                            source: segment.relationship.start,
-                            target: segment.relationship.end,
-                            type: segment.relationship.type,
-                            properties: segment.relationship.properties
-                        })
-                    }
-
-}
+			}else{
+				links.push({
+					id: item.id,
+		                    source: item.start.id,
+		                    target: item.end.id,
+		                    type: item.label,
+				    properties: {"type":item.type}
+		                })
+			}
+	
 
                 }
                 console.log(nodes)
