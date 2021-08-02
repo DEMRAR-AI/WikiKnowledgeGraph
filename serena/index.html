@@ -10,10 +10,7 @@
     <meta name="keywords" content="" />
     <meta name="author" content="" />
     <link rel="shortcut icon" href="">
-    <script
-			  src="https://code.jquery.com/jquery-2.1.4.min.js"
-			  integrity="sha256-8WqyJLuWKRBVhxXIL1jBDD7SDxU936oZkCnxQbWwJVw="
-			  crossorigin="anonymous"></script>
+    <script src="https://cdn.bootcss.com/jquery/2.1.4/jquery.min.js"></script>
     <link href="https://cdn.bootcss.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.bootcss.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
     <link rel="stylesheet" type="text/css" href="graph.css" />
@@ -52,7 +49,7 @@
             var names = ['Enterprise', 'Type', 'Region', 'Country']
             var labels = ['Enterprise', 'Type', 'Region', 'Country']
             var colors = ['#55ffff', '#aaaaff', '#4e88af', '#ca635f']
-            var url = 'records.json'
+            var url = 'testaltered.json'
 
             // load indicator CSS
             for (var i = 0; i < names.length; i++) {
@@ -74,37 +71,63 @@
             let nodes = []
             let links = [] // Store nodes and relationships
             let nodeSet = [] //Store the id of nodes after deduplication
-
+            console.log("working")
             //d3.json get data
             d3.json(url, function(error, data) {
                 if (error) throw error
+                console.log("working2")
                 graph = data
                 console.log(graph)
                 console.log(graph[0].n)
                 for (let item of graph) {
 
-			if(item.type == "node"){
+                    //if the item is a node
+                    if (item.type == "node"){
+                        console.log(item.id)
+                        nodes.push({
+                                id: item.identity,
+                                label: item.labels[0],
+                                properties: item.properties
+                            })
+                    }
 
-				if (nodeSet.indexOf(item.id) == -1) {
-		                    nodeSet.push(item.id)
-		                }
+                    //if the item is a relationship
+                    if (item.type == "relationship"){
 
-				nodes.push({
-		                        id: item.id,
-		                        label: item.labels[0],
-		                        properties: item.properties
-		                    })
 
-			}else{
-				links.push({
-					id: item.id,
-		                    source: item.start.id,
-		                    target: item.end.id,
-		                    type: item.label,
-				    properties: {"type":item.type}
-		                })
-			}
-	
+                        
+                        // Change the data format again
+                        /*
+                        if (nodeSet.indexOf(start.id) == -1) {
+                            nodeSet.push(start.id)
+                            nodes.push({
+                                id: segment.start.identity,
+                                label: segment.start.labels[0],
+                                properties: segment.start.properties
+                            })
+                        }
+                        if (nodeSet.indexOf(segment.end.identity) == -1) {
+                            nodeSet.push(segment.end.identity)
+                            nodes.push({
+                                id: segment.end.identity,
+                                label: segment.end.labels[0],
+                                properties: segment.end.properties
+                            })
+                        } 
+                        */
+                        links.push({
+                            source: item.start,
+                            target: item.end,
+                            type: item.label,
+                            properties: item.properties //NEED TO ACTUALLY LOCATE PROPERTIES THROUGH SEARCHING BACK IN DICTIONARY
+                            })
+                        
+
+                        
+
+                    }
+
+                    
 
                 }
                 console.log(nodes)
