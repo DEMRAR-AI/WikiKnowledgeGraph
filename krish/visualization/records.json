@@ -1,5 +1,4 @@
 [
-<<<<<<< HEAD
 {"type":"node","id":"0","labels":["PERSON"],"properties":{"name":"/wiki/Walt_Disney"}},
 {"type":"node","id":"1","labels":["GPE"],"properties":{"name":"/wiki/Modern_animation_in_the_United_States"}},
 {"type":"node","id":"2","labels":["PAGE"],"properties":{"name":"/wiki/Cartoon"}},
