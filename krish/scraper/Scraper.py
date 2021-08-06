@@ -84,7 +84,10 @@ class Scraper(object):
             try:
                 table = self.driver.find_element_by_class_name('wikitable')
             except NoSuchElementException:
-                table = self.driver.find_element_by_class_name("mw-headline")
+                try:
+                    table = self.driver.find_element_by_class_name("mw-headline")
+                except NoSuchElementException:
+                    table = self.driver
             a_tags = table.find_elements_by_tag_name('a')
             for a_tag in a_tags:
                 if a_tag:
