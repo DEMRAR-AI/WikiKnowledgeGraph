@@ -44,6 +44,22 @@ class Scraper(object):
         str = str.replace('_', ' ')
         return str
 
+    def _get_whole_page_branch_nodes(self, pg):
+        a_tags = list()
+        a_tag_dict = dict()
+        self.driver.get(Scraper.PREFIX + pg)
+        a_tags = self.driver.find_elements_by_tag_name('a')
+        for a_tag in a_tags:
+            # print(a_tag.text)
+            try:
+                href = a_tag.get_attribute('href')
+                href = href[href.find('g/') + 1:]
+                if not Scraper._contains(href):
+                    a_tag_dict[a_tag.text] = href
+            except:
+                continue
+        return list(a_tag_dict.values())
+
     def _get_branch_nodes(self, pg):
         is_list = False
         if "List_of" in pg:
@@ -75,11 +91,14 @@ class Scraper(object):
                 a_tags = main_p.find_elements_by_tag_name('a')
 
             for a_tag in a_tags:
+                try:
+                    href = a_tag.get_attribute('href')
+                    href = href[href.find('g/') + 1:]
+                    if not Scraper._contains(href):
+                        a_tag_dict[a_tag.text] = href
+                except:
+                    continue
                 # print(a_tag.text)
-                href = a_tag.get_attribute('href')
-                href = href[href.find('g/') + 1:]
-                if not Scraper._contains(href):
-                    a_tag_dict[a_tag.text] = href
         else:
             try:
                 table = self.driver.find_element_by_class_name('wikitable')
@@ -90,13 +109,14 @@ class Scraper(object):
                     table = self.driver
             a_tags = table.find_elements_by_tag_name('a')
             for a_tag in a_tags:
-                if a_tag:
+                if a_tag != None:
                     href = a_tag.get_attribute('href')
                     href = href[href.find('g/') + 1:]
                     if not Scraper._contains(href):
                         a_tag_dict[a_tag.text] = href
                 else:
                     continue
+        print(self.driver.title)
         return list(a_tag_dict.values())
 
     def process(self, depth=2, root=ROOT):
